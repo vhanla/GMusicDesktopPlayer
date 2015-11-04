@@ -3,7 +3,15 @@
 
 ### Unofficial Google Play Music Desktop Player for Windows 7, 8, 8.1 or 10
 
-![](http://lh3.googleusercontent.com/-k9jxc42lR5E/VjWcTRS6BOI/AAAAAAAALRw/o5siclFbSIQ/gmusicmaterial%25255B1%25255D.jpg?imgmax=800)
+![](https://github.com/vhanla/GMusicDesktopPlayer/blob/master/git_misc/snapshot.jpg?raw=true)
+
+Wrapper for Google Music turning it into a standalone application which has the following features:
+
+- Support custom User Styles (CSS)
+- Mini mode which can be on top as a widget
+- LastFM Scrobbling
+- Support Taskbar features
+- Multimedia keys
 
 Developed by [Victor Alberto Gil][2]. 
 
