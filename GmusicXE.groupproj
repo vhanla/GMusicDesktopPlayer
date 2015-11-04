@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{5D4F562F-2A44-4733-85B1-B1014320EB08}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="GMusic.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="subprocess.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="GMusic">
+        <MSBuild Projects="GMusic.dproj"/>
+    </Target>
+    <Target Name="GMusic:Clean">
+        <MSBuild Projects="GMusic.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GMusic:Make">
+        <MSBuild Projects="GMusic.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="subprocess">
+        <MSBuild Projects="subprocess.dproj"/>
+    </Target>
+    <Target Name="subprocess:Clean">
+        <MSBuild Projects="subprocess.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="subprocess:Make">
+        <MSBuild Projects="subprocess.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="GMusic;subprocess"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="GMusic:Clean;subprocess:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="GMusic:Make;subprocess:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
