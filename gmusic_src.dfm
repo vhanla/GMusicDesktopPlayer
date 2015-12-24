@@ -39,6 +39,9 @@ object Form1: TForm1
     OnConsoleMessage = Chromium1ConsoleMessage
     OnBeforePopup = Chromium1BeforePopup
     OnBeforeResourceLoad = Chromium1BeforeResourceLoad
+    Options.Java = STATE_DISABLED
+    Options.LocalStorage = STATE_ENABLED
+    Options.Webgl = STATE_ENABLED
   end
   object pnlTitleBar: TPanel
     Left = 0
@@ -2472,7 +2475,7 @@ object Form1: TForm1
       Height = 20
       Alignment = taCenter
       AutoSize = False
-      Caption = 'GMusic Desktop Player for Windows 7+ v 1.9.15'
+      Caption = 'GMusic Desktop Player for Windows 7+ v 1.9.16'
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -2677,6 +2680,24 @@ object Form1: TForm1
       Font.Name = 'Segoe UI Mono'
       Font.Style = []
       ParentFont = False
+    end
+    object Label12: TLabel
+      Left = 339
+      Top = 253
+      Width = 297
+      Height = 28
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 
+        'This program wouldn'#39't have been possible without DCEF3 by H.Gour' +
+        'vest, and CEF3 of course.'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clGray
+      Font.Height = -11
+      Font.Name = 'Segoe UI Mono'
+      Font.Style = []
+      ParentFont = False
+      WordWrap = True
     end
     object GroupBox1: TGroupBox
       Left = 16
@@ -2984,7 +3005,7 @@ object Form1: TForm1
     Left = 712
     Top = 104
     Bitmap = {
-      494C010104000800B40110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000800BC0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

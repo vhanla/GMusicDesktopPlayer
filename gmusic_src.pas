@@ -5,6 +5,8 @@ Google Music Desktop Player for Windows 7
   11 feb 2015 : popup notification
 
 Changelog:
+- 23 Dec 2015 - v.1.9.16
+  - Fix LastFM scrobbling
 
 - 03 Nov 2015 - v.1.9.15
   - New Chromium v45 (DCEF2 branch 2454)
@@ -249,6 +251,7 @@ type
     lblSearch: TLabel;
     tmrGadgetStatus: TTimer;
     Chromium1: TChromium;
+    Label12: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Artist1Click(Sender: TObject);
     procedure Song1Click(Sender: TObject);
@@ -422,10 +425,11 @@ type
 var
   Form1: TForm1;
   //FRMSHADOW
-
 const
-  API_Key = '55f56f7b910a196d23b383efba6b5a91';
-  API_secret ='8e10c944d9d67628b6deafd4773f767d';
+{$include LastFMCredentials.inc}
+// comment out previous line and uncomment these ones
+//  API_Key = 'REPLACE_WITH_YOUR_API_KEY';
+//  API_secret ='REPLACE_WITH_YOUR_API_SECRET';
   WM_PlayBack = WM_User + 850;
   UnixStartDate: TDateTime = 25569.0;
   ps_Stopped = 0;
@@ -524,7 +528,7 @@ end;
 function GetSongName:string;
 begin
   Form1.Chromium1.Browser.MainFrame.ExecuteJavaScript(
-    'if(document.getElementById("player-song-title")){console.log("WM_GETSONGNAME"+document.getElementById("player-song-title").innerText)}','',0);
+    'if(document.getElementById("currently-playing-title")){console.log("WM_GETSONGNAME"+document.getElementById("currently-playing-title").innerText)}','',0);
 
   if form1.songName<>'' then
     Result:=form1.songName
