@@ -39,7 +39,6 @@ object Form1: TForm1
     OnConsoleMessage = Chromium1ConsoleMessage
     OnBeforePopup = Chromium1BeforePopup
     OnBeforeResourceLoad = Chromium1BeforeResourceLoad
-    Options.Java = STATE_DISABLED
     Options.LocalStorage = STATE_ENABLED
     Options.Webgl = STATE_ENABLED
   end
@@ -2475,7 +2474,7 @@ object Form1: TForm1
       Height = 20
       Alignment = taCenter
       AutoSize = False
-      Caption = 'GMusic Desktop Player for Windows 7+ v 1.9.16'
+      Caption = 'GMusic Desktop Player for Windows 7+ v 1.9.27'
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -2662,7 +2661,7 @@ object Form1: TForm1
       Font.Style = []
       ParentColor = False
       ParentFont = False
-      Transparent = False
+      Transparent = True
       Layout = tlCenter
       OnClick = Label10Click
     end
@@ -2747,7 +2746,7 @@ object Form1: TForm1
         Font.Style = []
         ParentColor = False
         ParentFont = False
-        Transparent = False
+        Transparent = True
         Layout = tlCenter
         OnClick = lblBtnAuthorizeClick
       end
@@ -3005,7 +3004,7 @@ object Form1: TForm1
     Left = 712
     Top = 104
     Bitmap = {
-      494C010104000800BC0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000800D00110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

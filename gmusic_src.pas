@@ -5,6 +5,13 @@ Google Music Desktop Player for Windows 7
   11 feb 2015 : popup notification
 
 Changelog:
+- 27 Oct 2016 - v.1.9.27
+  - Updated to DCEF 2704 // dropped java support
+  - Fixed some user scripts that blocked play the music
+
+- 25 Dec 2015 - v.1.9.17
+  - Fixed cover art
+  - Added Windows 10 Tile
 - 23 Dec 2015 - v.1.9.16
   - Fix LastFM scrobbling
 
@@ -421,7 +428,6 @@ type
     procedure WMCopyData(var message: TMessage);message WM_COPYDATA;
   end;
 
-
 var
   Form1: TForm1;
   //FRMSHADOW
@@ -449,6 +455,7 @@ uses gadget,httpsend, ioutils {this is for css loading};
 var
   WM_TASKBARBUTTONCREATED: Cardinal;
   isWindows7: boolean = false;
+  newTrackStarted: Boolean = False;
 
 //******* Extensions support ***********///
 const
@@ -467,7 +474,7 @@ const
 function GetCoverArtURL:string;
 begin
   Form1.Chromium1.Browser.MainFrame.ExecuteJavaScript(
-    'if(document.getElementById("playingAlbumArt")){console.log("WM_GETCOVERARTURL"+document.getElementById("playingAlbumArt").src);}','',0);
+    'if(document.getElementById("playerBarArt")){console.log("WM_GETCOVERARTURL"+document.getElementById("playerBarArt").src);}','',0);
 
 
   if pos('//',form1.coverURL)=1 then
@@ -481,35 +488,28 @@ end;
 
 procedure GetCoverArt;
 var
-imagen: TJPEGImage;
-imapng: TPngImage;
+imagen: TWICImage;
 coverArtURI: string;
 begin
+//coverArtURI:= StringReplace(GetCoverArtURL, '=s90-','=s256-', [rfReplaceAll]);
 coverArtURI:= GetCoverArtURL;
 if coverArtURI='' then exit;
 
 with THTTPSend.Create do
 begin
-  if HTTPMethod('GET',GetCoverArtURL) then
+  if HTTPMethod('GET',coverArtURI) then
   try
-    imagen:=TJPEGImage.Create;
-    Document.Seek(0,0);
-    imagen.LoadFromStream(Document);
-    frmGadget.Image2.Picture.Graphic:=imagen;
-    form1.imgMiniCover.Picture.Graphic:=imagen;
-    imagen.Free;
-  except
-    //it might be a PNG file
+    imagen:= TWICImage.Create; //TJPEGImage.Create;
     try
-      imapng:=TPngImage.Create;
       Document.Seek(0,0);
-      imapng.LoadFromStream(Document);
-      frmGadget.Image2.Picture.Graphic:=imapng;
-      form1.imgMiniCover.Picture.Graphic:=imapng;
-      imapng.Free;
-    except
-      //just ignore it
+      imagen.LoadFromStream(Document);
+      frmGadget.Image2.Picture.Graphic:=imagen;
+      form1.imgMiniCover.Picture.Graphic:=imagen;
+    finally
+      imagen.Free;
     end;
+  except
+    //let's block poping up exception error message
   end;
   Free;
 end;
@@ -599,7 +599,7 @@ begin
   //the following will return "Play" or "Pause"
   Form1.Chromium1.Browser.MainFrame.ExecuteJavaScript(
   'if(document.querySelectorAll(''[data-id="play-pause"]'')[0]){console.log("WM_ISMUSICPLAYING"+document.querySelectorAll(''[data-id="play-pause"]'')[0].title)}', '', 0);
-
+  Sleep(9);
   if form1.isPlaying = 'Play' then
     Result := False
   else
@@ -955,6 +955,8 @@ begin
   end;
   message.Result := 1;
 end;
+
+
 
 procedure TForm1.WMShowWindow(var msg: TWMShowWindow);
 begin
@@ -1446,6 +1448,7 @@ begin
 
 //snarl support - registering our app
 //  snarl_register('application/x-vnd-codigobit.gmusic','Google Music Desktop Player','');
+
 end;
 
 
@@ -2530,7 +2533,7 @@ begin
     songPosition := Copy(message, 19);
 
   if Pos('WM_ISMUSICPLAYING', message) = 1 then
-    isPlaying := Copy(message, 17);
+    isPlaying := Copy(message, 18);
 end;
 
 procedure TForm1.Chromium1ContextMenuCommand(Sender: TObject;
@@ -2558,14 +2561,10 @@ begin
     Shape2.Visible:=False;
     tmrLoading.Enabled:=False;
 
-    //ocultamos topBarContainer
-    Frame.ExecuteJavaScript('document.getElementById("oneGoogleWrapper").style.visibility = "hidden"','',0);
-    Frame.ExecuteJavaScript('document.getElementById("oneGoogleWrapper").style.display = "none"','',0);
-
     //inyectamos código para hacer click
-    Frame.ExecuteJavaScript('var s=document.createElement(''script'');s.innerText=''function dispatchMouseEvent(t,e){var f=document.createEvent("MouseEvents");f.initMouseEvent(e,true,true,window,0,0,0,0,0,false,false,false,false,0,null);t.dispatchEvent(f)}'';document.head.appendChild(s);','',0);
+    //Frame.ExecuteJavaScript('var s=document.createElement(''script'');s.innerText=''function dispatchMouseEvent(t,e){var f=document.createEvent("MouseEvents");f.initMouseEvent(e,true,true,window,0,0,0,0,0,false,false,false,false,0,null);t.dispatchEvent(f)}'';document.head.appendChild(s);','',0);
     //ahora el mouseclick
-    Frame.ExecuteJavaScript('var s=document.createElement(''script'');s.innerText=''function mouseClick(e){dispatchMouseEvent(e,"mouseover");dispatchMouseEvent(e,"mousedown");dispatchMouseEvent(e,"click");dispatchMouseEvent(e,"mouseup");}'';document.head.appendChild(s);','',0);
+    //Frame.ExecuteJavaScript('var s=document.createElement(''script'');s.innerText=''function mouseClick(e){dispatchMouseEvent(e,"mouseover");dispatchMouseEvent(e,"mousedown");dispatchMouseEvent(e,"click");dispatchMouseEvent(e,"mouseup");}'';document.head.appendChild(s);','',0);
 
     //agregamos fondo para mostrar dialogos de la aplicación
     Frame.ExecuteJavaScript('var d=document.createElement(''div'');d.id="GMxBG";'
@@ -2577,17 +2576,18 @@ begin
 
     // agregamos caja de búsqueda para
 
-    //agregamos botones +1
-    Frame.ExecuteJavaScript('q=document;d=q.createElement("div");d.id=''gmusicplus'',d.innerHTML=''<g:pl'
-    +'usone size="medium"  href="http://apps.codigobit.info/gmusic"></g:plusone>'';d.setAttribute("style","position:absolute;z-index:4;");q.body.appendChild(d);','',0);
-    //+'usone size="small" annotation="inline" href="http://apps.codigobit.info/2011/10/google-music-desktop-player.html"></g:plusone>'';d.setAttribute("style","position:absolute;z-index:4;");q.body.appendChild(d);','',0);
 
-    Frame.ExecuteJavaScript('d.style.right="114px";d.style.top="24px";d.style.opacity=0.3;','',0);
-    Frame.ExecuteJavaScript('d.setAttribute("onmouseover","d.style.opacity=1");','',0);
-    Frame.ExecuteJavaScript('d.setAttribute("onmouseout","d.style.opacity=0.3");','',0);
-    //frame.ExecuteJavaScript('d.innerHTML="<span><a href=''//https://www.google.com/accounts/Logout?service=sj&continue=http://music.google.com/music/listen''>Logout</a> |</span>"+d.innerHTML','',0);
-    sleep(100);
-    Frame.ExecuteJavaScript('(function(){var p=document.createElement(''script'');p.type=''text/javascript'';p.async=true;p.src=''https://apis.google.com/js/plusone.js'';var s=document.getElementsByTagName(''script'')[0];s.parentNode.insertBefore(p,s);})();','',0);
+    //agregamos botones +1
+    //Frame.ExecuteJavaScript('var q=document;d=q.createElement("div");d.id=''gmusicplus'',d.innerHTML=''<g:pl'
+    //+'usone size="medium"  href="http://apps.codigobit.info/gmusic"></g:plusone>'';d.setAttribute("style","position:absolute;z-index:4;");q.body.appendChild(d);','',0);
+    /////+'usone size="small" annotation="inline" href="http://apps.codigobit.info/2011/10/google-music-desktop-player.html"></g:plusone>'';d.setAttribute("style","position:absolute;z-index:4;");q.body.appendChild(d);','',0);
+
+    //Frame.ExecuteJavaScript('d.style.right="114px";d.style.top="24px";d.style.opacity=0.3;','',0);
+    //Frame.ExecuteJavaScript('d.setAttribute("onmouseover","d.style.opacity=1");','',0);
+    //Frame.ExecuteJavaScript('d.setAttribute("onmouseout","d.style.opacity=0.3");','',0);
+    //////frame.ExecuteJavaScript('d.innerHTML="<span><a href=''//https://www.google.com/accounts/Logout?service=sj&continue=http://music.google.com/music/listen''>Logout</a> |</span>"+d.innerHTML','',0);
+    //sleep(100);
+    //Frame.ExecuteJavaScript('(function(){var p=document.createElement(''script'');p.type=''text/javascript'';p.async=true;p.src=''https://apis.google.com/js/plusone.js'';var s=document.getElementsByTagName(''script'')[0];s.parentNode.insertBefore(p,s);})();','',0);
 
     //Let's add the search box // not anymore since new official theme uses top bar as search
 (*    Frame.ExecuteJavaScript(
@@ -2605,16 +2605,16 @@ begin
 
     //Let's clear incompatible elements
     Frame.ExecuteJavaScript('document.querySelectorAll(''[data-id="show-miniplayer"]'')[0].disabled=true','',0);
-    Frame.ExecuteJavaScript('document.querySelectorAll(''[data-id="upload-music"]'')[0].disabled=true','',0);
-    Frame.ExecuteJavaScript('document.querySelectorAll(''[data-id="upload-music"]'')[0].style.display=''none''','',0);
+    Frame.ExecuteJavaScript('document.querySelectorAll(''[data-action="upload-music"]'')[0].disabled=true','',0);
+    Frame.ExecuteJavaScript('document.querySelectorAll(''[data-action="upload-music"]'')[0].style.display=''none''','',0);
     //hide incompatible elements
-    Frame.ExecuteJavaScript('if(document.getElementById(":2b"))document.getElementById(":2b").style.display="none"','',0);
-    Frame.ExecuteJavaScript('if(document.getElementById(":2c"))document.getElementById(":2c").style.display="none"','',0);
-    Frame.ExecuteJavaScript('if(document.getElementById(":2d"))document.getElementById(":2d").style.display="none"','',0);
-    Frame.ExecuteJavaScript('if(document.getElementById(":7"))document.getElementById(":7").style.display="none"','',0);
-    //lets hide the settings button, no needed  :P
-    Frame.ExecuteJavaScript('if(document.getElementById("extra-links-container"))document.getElementById("extra-links-container").style.display="none"','',0);
+    //Frame.ExecuteJavaScript('if(document.getElementById(":2b"))document.getElementById(":2b").style.display="none"','',0);
+    //Frame.ExecuteJavaScript('if(document.getElementById(":2c"))document.getElementById(":2c").style.display="none"','',0);
+    //Frame.ExecuteJavaScript('if(document.getElementById(":2d"))document.getElementById(":2d").style.display="none"','',0);
+    //Frame.ExecuteJavaScript('if(document.getElementById(":7"))document.getElementById(":7").style.display="none"','',0);
 
+    //lets hide the settings button, no needed  :P     //Frame.ExecuteJavaScript('if(document.getElementById("extra-links-container"))document.getElementById("extra-links-container").style.display="none"','',0);
+    Frame.ExecuteJavaScript('document.querySelectorAll(''[data-type="accountsettings"]'')[0].style.display=''none''','',0);
     end;
 
 
