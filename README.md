@@ -1,3 +1,4 @@
+Project Archived since Google Music is no longer to be available in favor of YouTubeMusic.
 [GMusic Desktop Player][1]
 =====================
 
